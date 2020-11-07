@@ -1,40 +1,44 @@
-import sleep from './sleep.js'
+import parseProofJSON from './parse-proof-json.js'
+import { MinimumBankBalanceProof } from './types.js'
+import { td, tr } from './dom.js'
 
 const proofDataTextarea: HTMLTextAreaElement = document.querySelector('textarea#proof_data')
 const loadProofButton: HTMLButtonElement = document.querySelector('button#load_proof')
 const readableDataTable: HTMLTableElement = document.querySelector('table#readable_data')
 
-type Proof = {
-  configuration: {
-    minBalance: number
-  }
+function clear(el: HTMLElement) {
+  el.innerHTML = ''
 }
-
-function td(content: string): HTMLTableCellElement {
-  const td = document.createElement('td')
-  td.innerText = content
-  return td
-}
-
-function tr(tds: HTMLTableCellElement[]): HTMLTableRowElement {
-  const tr = document.createElement('tr')
-  for (const td of tds) {
-    tr.appendChild(td)
-  }
-  return tr
+function handleMinimumBalanceProof(proof: MinimumBankBalanceProof) {
+  clear(readableDataTable)
+  readableDataTable.append(tr([
+    td('Minimum balance:'),
+    td(proof.typeSpecificData.minimumBalance.toString())
+  ]))
+  readableDataTable.append(tr([
+    td('Account holder name:'),
+    td(proof.typeSpecificData.accountHolderName)
+  ]))
+  readableDataTable.append(tr([
+    td('Server timestamp:'),
+    td(proof.typeSpecificData.serverTimestamp)
+  ]))
 }
 
 function handleProofDataUpdate() {
-  let proof: Proof
+  let proof
   try {
-    proof = JSON.parse(proofDataTextarea.value)
+    proof = parseProofJSON(proofDataTextarea.value)
   } catch (e) {
-    alert('Cannot parse proof data')
+    alert(e.name + ': ' + e.message)
+    return
   }
-  readableDataTable.append(tr([
-    td('Minimum balance'),
-    td(proof.configuration.minBalance.toString())
-  ]))
+  if (proof.type === 'minimumBankBalance') {
+    handleMinimumBalanceProof(proof)
+  } else {
+    alert('Invalid or unsupported proof type')
+  }
+
 }
 
 async function init() {

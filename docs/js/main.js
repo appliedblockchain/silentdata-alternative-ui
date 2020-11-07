@@ -1,30 +1,41 @@
+import parseProofJSON from './parse-proof-json.js';
+import { td, tr } from './dom.js';
 const proofDataTextarea = document.querySelector('textarea#proof_data');
 const loadProofButton = document.querySelector('button#load_proof');
 const readableDataTable = document.querySelector('table#readable_data');
-function td(content) {
-    const td = document.createElement('td');
-    td.innerText = content;
-    return td;
+function clear(el) {
+    el.innerHTML = '';
 }
-function tr(tds) {
-    const tr = document.createElement('tr');
-    for (const td of tds) {
-        tr.appendChild(td);
-    }
-    return tr;
+function handleMinimumBalanceProof(proof) {
+    clear(readableDataTable);
+    readableDataTable.append(tr([
+        td('Minimum balance'),
+        td(proof.typeSpecificData.minimumBalance.toString())
+    ]));
+    readableDataTable.append(tr([
+        td('Account holder name'),
+        td(proof.typeSpecificData.accountHolderName)
+    ]));
+    readableDataTable.append(tr([
+        td('Server timestamp'),
+        td(proof.typeSpecificData.serverTimestamp)
+    ]));
 }
 function handleProofDataUpdate() {
     let proof;
     try {
-        proof = JSON.parse(proofDataTextarea.value);
+        proof = parseProofJSON(proofDataTextarea.value);
     }
     catch (e) {
-        alert('Cannot parse proof data');
+        alert(e.name + ': ' + e.message);
+        return;
     }
-    readableDataTable.append(tr([
-        td('Minimum balance'),
-        td(proof.configuration.minBalance.toString())
-    ]));
+    if (proof.type === 'minimumBankBalance') {
+        handleMinimumBalanceProof(proof);
+    }
+    else {
+        alert('Invalid or unsupported proof type');
+    }
 }
 async function init() {
     const res = await fetch('proof.json');
@@ -33,4 +44,3 @@ async function init() {
 }
 loadProofButton.addEventListener('click', handleProofDataUpdate);
 init();
-export {};
