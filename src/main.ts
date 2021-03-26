@@ -1,6 +1,7 @@
 import parseProofJSON from './parse-proof-json.js'
 import { MinimumBankBalanceProof } from './types.js'
 import { td, tr } from './dom.js'
+import { verifyProofSignature } from './verification.js'
 
 const proofDataTextarea: HTMLTextAreaElement = document.querySelector('textarea#proof_data')
 const loadProofButton: HTMLButtonElement = document.querySelector('button#load_proof')
@@ -20,9 +21,20 @@ function handleMinimumBalanceProof(proof: MinimumBankBalanceProof) {
     td(proof.typeSpecificData.accountHolderName)
   ]))
   readableDataTable.append(tr([
-    td('Server timestamp:'),
+    td('Institution name:'),
+    td(proof.typeSpecificData.institutionName)
+  ]))
+  readableDataTable.append(tr([
+    td('Timestamp:'),
     td(proof.typeSpecificData.serverTimestamp)
   ]))
+  // Verify signature
+  if (verifyProofSignature(proof)) {
+    readableDataTable.append(tr([
+      td('Proof signature verified:'),
+      td('True')
+    ]))
+  }
 }
 
 function handleProofDataUpdate() {
@@ -33,7 +45,7 @@ function handleProofDataUpdate() {
     alert(e.name + ': ' + e.message)
     return
   }
-  if (proof.type === 'minimumBankBalance') {
+  if (proof.type === 'minimumBalance') {
     handleMinimumBalanceProof(proof)
   } else {
     alert('Invalid or unsupported proof type')

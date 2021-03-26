@@ -11,3 +11,17 @@ export function hexToArrayBuffer(input) {
     fillWithDataFromHex(uints, input);
     return uints.buffer;
 }
+const byteToHex = [];
+for (let n = 0; n <= 0xff; ++n) {
+    const hexOctet = n.toString(16).padStart(2, '0');
+    byteToHex.push(hexOctet);
+}
+export function dataViewToHex(view) {
+    const hexOctets = [];
+    for (let i = 0; i < view.byteLength; ++i)
+        hexOctets.push(byteToHex[view.getUint8(i)]);
+    return hexOctets.join('');
+}
+export function arrayBufferToHex(ab) {
+    return dataViewToHex(new DataView(ab));
+}

@@ -2,10 +2,14 @@ import { Proof, MinimumBankBalanceProof } from './types.js'
 import { hexToArrayBuffer } from './hex.js'
 
 type RawMinimumBankBalanceTypeSpecificData = {
+  attestationType: number,
+  processId: string,
   serverTimestamp: string,
-  certificateChain: string,
   accountHolderName: string,
-  minimumBalance: number
+  institutionName: string,
+  minimumBalance: number,
+  requestTimestamp: number,
+  certificateChain: string
 }
 
 type GenericRawProof<T> = {
@@ -13,8 +17,10 @@ type GenericRawProof<T> = {
   typeSpecificData: T,
   iasReport: string,
   iasSignature: string,
+  iasCertChain: string,
   sigModulus: string,
-  encModulus: string
+  encModulus: string,
+  signature: string
 }
 
 
@@ -22,23 +28,29 @@ type RawMinimumBankBalanceProof = GenericRawProof<RawMinimumBankBalanceTypeSpeci
 
 function parseMinimumBankBalanceProof(rawProof: RawMinimumBankBalanceProof) {
   return {
-    type: "minimumBankBalance",
+    type: "minimumBalance",
     typeSpecificData: {
+      attestationType: rawProof.typeSpecificData.attestationType,
+      processId: rawProof.typeSpecificData.processId,
       serverTimestamp: rawProof.typeSpecificData.serverTimestamp,
-      certificateChain: rawProof.typeSpecificData.certificateChain,
       accountHolderName: rawProof.typeSpecificData.accountHolderName,
-      minimumBalance: rawProof.typeSpecificData.minimumBalance
+      institutionName: rawProof.typeSpecificData.institutionName,
+      minimumBalance: rawProof.typeSpecificData.minimumBalance,
+      requestTimestamp: rawProof.typeSpecificData.requestTimestamp,
+      certificateChain: rawProof.typeSpecificData.certificateChain,
     },
     iasReport: rawProof.iasReport,
-    iasSignature: rawProof.iasSignature,
+    iasSignature: hexToArrayBuffer(rawProof.iasSignature),
+    iasCertChain: rawProof.iasCertChain,
     sigModulus: hexToArrayBuffer(rawProof.sigModulus),
-    encModulus: hexToArrayBuffer(rawProof.encModulus)
+    encModulus: hexToArrayBuffer(rawProof.encModulus),
+    signature: hexToArrayBuffer(rawProof.signature)
   }
 }
 
 export default function parseProofJSON(json: string): Proof {
   const rawProof = JSON.parse(json)
-  if (rawProof.type === 'minimumBankBalance') {
+  if (rawProof.type === 'minimumBalance') {
     return parseMinimumBankBalanceProof(rawProof)
   } else {
     throw new Error('Invalid or unsupported proof type')

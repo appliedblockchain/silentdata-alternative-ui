@@ -1,17 +1,23 @@
 type MinimumBankBalanceTypeSpecificData = {
+  attestationType: number,
+  processId: string,
   serverTimestamp: string,
-  certificateChain: string,
   accountHolderName: string,
-  minimumBalance: number
+  institutionName: string,
+  minimumBalance: number,
+  requestTimestamp: number,
+  certificateChain: string
 }
 
 type GenericProof<T> = {
   type: string,
   typeSpecificData: T,
   iasReport: string,
-  iasSignature: string,
+  iasSignature: ArrayBuffer,
+  iasCertChain: string,
   sigModulus: ArrayBuffer,
-  encModulus: ArrayBuffer
+  encModulus: ArrayBuffer,
+  signature: ArrayBuffer
 }
 
 export type MinimumBankBalanceProof = GenericProof<MinimumBankBalanceTypeSpecificData>

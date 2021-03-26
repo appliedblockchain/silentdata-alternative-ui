@@ -1,22 +1,28 @@
 import { hexToArrayBuffer } from './hex.js';
 function parseMinimumBankBalanceProof(rawProof) {
     return {
-        type: "minimumBankBalance",
+        type: "minimumBalance",
         typeSpecificData: {
+            attestationType: rawProof.typeSpecificData.attestationType,
+            processId: rawProof.typeSpecificData.processId,
             serverTimestamp: rawProof.typeSpecificData.serverTimestamp,
-            certificateChain: rawProof.typeSpecificData.certificateChain,
             accountHolderName: rawProof.typeSpecificData.accountHolderName,
-            minimumBalance: rawProof.typeSpecificData.minimumBalance
+            institutionName: rawProof.typeSpecificData.institutionName,
+            minimumBalance: rawProof.typeSpecificData.minimumBalance,
+            requestTimestamp: rawProof.typeSpecificData.requestTimestamp,
+            certificateChain: rawProof.typeSpecificData.certificateChain,
         },
         iasReport: rawProof.iasReport,
-        iasSignature: rawProof.iasSignature,
+        iasSignature: hexToArrayBuffer(rawProof.iasSignature),
+        iasCertChain: rawProof.iasCertChain,
         sigModulus: hexToArrayBuffer(rawProof.sigModulus),
-        encModulus: hexToArrayBuffer(rawProof.encModulus)
+        encModulus: hexToArrayBuffer(rawProof.encModulus),
+        signature: hexToArrayBuffer(rawProof.signature)
     };
 }
 export default function parseProofJSON(json) {
     const rawProof = JSON.parse(json);
-    if (rawProof.type === 'minimumBankBalance') {
+    if (rawProof.type === 'minimumBalance') {
         return parseMinimumBankBalanceProof(rawProof);
     }
     else {
