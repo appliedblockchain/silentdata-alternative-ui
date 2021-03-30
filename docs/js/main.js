@@ -7,7 +7,7 @@ const readableDataTable = document.querySelector('table#readable_data');
 function clear(el) {
     el.innerHTML = '';
 }
-function handleMinimumBalanceProof(proof) {
+async function handleMinimumBalanceProof(proof) {
     clear(readableDataTable);
     readableDataTable.append(tr([
         td('Minimum balance:'),
@@ -26,10 +26,17 @@ function handleMinimumBalanceProof(proof) {
         td(proof.typeSpecificData.serverTimestamp)
     ]));
     // Verify signature
-    if (verifyProofSignature(proof)) {
+    const verified = await verifyProofSignature(proof);
+    if (verified) {
         readableDataTable.append(tr([
             td('Proof signature verified:'),
             td('True')
+        ]));
+    }
+    else {
+        readableDataTable.append(tr([
+            td('Proof signature verified:'),
+            td('False')
         ]));
     }
 }

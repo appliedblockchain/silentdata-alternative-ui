@@ -1,10 +1,11 @@
-import { arrayBufferToHex } from './hex.js'
+import { arrayBufferToBase64UrlEncode } from './base64.js'
 
 // Creates an RSA signature verification public key from a modulus (public exponent fixed to 65537)
 export function rsaSignatureVerificationPublicKey(modulus: ArrayBuffer): PromiseLike<CryptoKey> {
+  const modulusBase64 = arrayBufferToBase64UrlEncode(modulus, false)
   const jsonWebKey = {
     kty: "RSA",
-    n: arrayBufferToHex(modulus),
+    n: modulusBase64,
     e: "AQAB",
     use: "sig",
     alg: "RS256"
