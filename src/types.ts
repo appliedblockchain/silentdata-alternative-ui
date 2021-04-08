@@ -1,10 +1,25 @@
-type MinimumBankBalanceTypeSpecificData = {
+type MinimumBalanceTypeSpecificData = {
+  minimumBalance: number
+}
+
+type ConsistentIncomeTypeSpecificData = {
+  consistentIncome: number
+}
+
+type AccountOwnershipTypeSpecificData = {
+  supportedBankInfo: number,
+  accountNumber: number,
+  sortCode: number,
+  iban: string
+}
+
+type PlaidProof<T> = {
   attestationType: number,
+  attestationData: T,
   processId: string,
   serverTimestamp: string,
   accountHolderName: string,
   institutionName: string,
-  minimumBalance: number,
   requestTimestamp: number,
   certificateChain: string
 }
@@ -20,6 +35,11 @@ type GenericProof<T> = {
   signature: ArrayBuffer
 }
 
-export type MinimumBankBalanceProof = GenericProof<MinimumBankBalanceTypeSpecificData>
+export type MinimumBalanceProof = GenericProof<PlaidProof<MinimumBalanceTypeSpecificData>>
+export type ConsistentIncomeProof = GenericProof<PlaidProof<ConsistentIncomeTypeSpecificData>>
+export type AccountOwnershipProof = GenericProof<PlaidProof<AccountOwnershipTypeSpecificData>>
 
-export type Proof = MinimumBankBalanceProof
+export type Proof =
+  | MinimumBalanceProof
+  | ConsistentIncomeProof
+  | AccountOwnershipProof
