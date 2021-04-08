@@ -30,8 +30,6 @@ export async function verifyProofSignature(proof) {
         attestationData = balanceBinaryAttestationData(proof);
     }
     const pubKey = await rsaSignatureVerificationPublicKey(proof.sigModulus);
-    console.log(attestationData);
     const verificationResult = await rsaVerify(pubKey, attestationData, proof.signature);
-    console.log(verificationResult);
     return verificationResult;
 }

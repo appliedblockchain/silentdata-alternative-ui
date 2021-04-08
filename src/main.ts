@@ -1,7 +1,8 @@
 import parseProofJSON from './parse-proof-json.js'
 import { MinimumBankBalanceProof } from './types.js'
 import { td, tr } from './dom.js'
-import { verifyProofSignature } from './verification.js'
+import { verifyProofSignature } from './proof-verification.js'
+import { verifyRemoteAttestationReport } from './ra-verification.js'
 
 const proofDataTextarea: HTMLTextAreaElement = document.querySelector('textarea#proof_data')
 const loadProofButton: HTMLButtonElement = document.querySelector('button#load_proof')
@@ -29,18 +30,17 @@ async function handleMinimumBalanceProof(proof: MinimumBankBalanceProof) {
     td(proof.typeSpecificData.serverTimestamp)
   ]))
   // Verify signature
-  const verified = await verifyProofSignature(proof)
-  if (verified) {
-    readableDataTable.append(tr([
-      td('Proof signature verified:'),
-      td('True')
-    ]))
-  } else {
-    readableDataTable.append(tr([
-      td('Proof signature verified:'),
-      td('False')
-    ]))
-  }
+  const proofVerified = await verifyProofSignature(proof)
+  readableDataTable.append(tr([
+    td('Proof signature verified:'),
+    proofVerified ? td('True') : td('False')
+  ]))
+  // Verify remote attestation report
+  const raVerified = await verifyRemoteAttestationReport(proof)
+  readableDataTable.append(tr([
+    td('Secure enclave verified:'),
+    raVerified ? td('True') : td('False')
+  ]))
 }
 
 function handleProofDataUpdate() {

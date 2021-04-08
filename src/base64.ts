@@ -15,3 +15,13 @@ export function arrayBufferToBase64UrlEncode(ab: ArrayBuffer, littleEndian: bool
     .replace(/=/g, '')
     .replace(/\+/g, '-');
 }
+
+export function base64ToArrayBuffer(base64: string): ArrayBuffer {
+  const byteString = atob(base64)
+  const buf = new ArrayBuffer(byteString.length)
+  const uints = new Uint8Array(buf)
+  for (let i = 0; i < byteString.length; i = i + 1) {
+    uints[i] = byteString.codePointAt(i) as number
+  }
+  return buf
+}
