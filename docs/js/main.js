@@ -4,12 +4,11 @@ import { verifyPlaidCertificate } from './plaid-verification.js';
 import { verifyRemoteAttestationReport } from './ra-verification.js';
 import { td, tr } from './dom.js';
 const proofDataTextarea = document.querySelector('textarea#proof_data');
-const loadProofButton = document.querySelector('button#load_proof');
+const proofFile = document.querySelector('input#proof_file');
+const verifyProofButton = document.querySelector('button#verify_proof');
 const readableDataTable = document.querySelector('table#readable_data');
 function clear(el) {
     el.innerHTML = '';
-}
-async function verifyProof(proof) {
 }
 async function handleMinimumBalanceProof(proof) {
     clear(readableDataTable);
@@ -152,10 +151,31 @@ function handleProofDataUpdate() {
         alert('Invalid or unsupported proof type');
     }
 }
-async function init() {
-    const res = await fetch('proof.json');
-    proofDataTextarea.value = await res.text();
-    handleProofDataUpdate();
+async function uploadProof() {
+    console.log("Uploading proof");
+    const file = proofFile.files[0];
+    if (file) {
+        const data = await new Response(file).text();
+        proofDataTextarea.value = data;
+    }
+    /*
+    if (proofFile.files.length < 1) {
+      return
+    }
+    var reader = new FileReader()
+    reader.onload = (function () {
+      return function () {
+        console.log("On load")
+        proofDataTextarea.value = reader.result as string
+      }
+    })
+    reader.readAsText(proofFile.files[0])*/
 }
-loadProofButton.addEventListener('click', handleProofDataUpdate);
+async function init() {
+    //const res = await fetch('proof.json')
+    //proofDataTextarea.value = await res.text()
+    //handleProofDataUpdate()
+}
+proofFile.addEventListener('change', uploadProof);
+verifyProofButton.addEventListener('click', handleProofDataUpdate);
 init();

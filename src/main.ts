@@ -6,15 +6,12 @@ import { verifyRemoteAttestationReport } from './ra-verification.js'
 import { td, tr } from './dom.js'
 
 const proofDataTextarea: HTMLTextAreaElement = document.querySelector('textarea#proof_data')
-const loadProofButton: HTMLButtonElement = document.querySelector('button#load_proof')
+const proofFile: HTMLInputElement = document.querySelector('input#proof_file')
+const verifyProofButton: HTMLButtonElement = document.querySelector('button#verify_proof')
 const readableDataTable: HTMLTableElement = document.querySelector('table#readable_data')
 
 function clear(el: HTMLElement) {
   el.innerHTML = ''
-}
-
-async function verifyProof(proof: Proof) {
-
 }
 
 async function handleMinimumBalanceProof(proof: MinimumBalanceProof) {
@@ -158,12 +155,23 @@ function handleProofDataUpdate() {
   }
 }
 
-async function init() {
-  const res = await fetch('proof.json')
-  proofDataTextarea.value = await res.text()
-  handleProofDataUpdate()
+async function uploadProof() {
+  console.log("Uploading proof")
+  const file = proofFile.files[0]
+  if (file) {
+    const data = await new Response(file).text()
+    proofDataTextarea.value = data
+  }
 }
 
-loadProofButton.addEventListener('click', handleProofDataUpdate)
+async function init() {
+  uploadProof()
+  //const res = await fetch('proof.json')
+  //proofDataTextarea.value = await res.text()
+  //handleProofDataUpdate()
+}
+
+proofFile.addEventListener('change', uploadProof)
+verifyProofButton.addEventListener('click', handleProofDataUpdate)
 
 init()
