@@ -1,14 +1,50 @@
 import parseProofJSON from './parse-proof-json.js';
-import { verifyMinimumBalanceProofSignature, verifyConsistentIncomeProofSignature, verifyAccountOwnershipProofSignature } from './proof-verification.js';
+import { verifyProofSignature } from './proof-verification.js';
 import { verifyPlaidCertificate } from './plaid-verification.js';
 import { verifyRemoteAttestationReport } from './ra-verification.js';
 import { td, tr } from './dom.js';
-const proofDataTextarea = document.querySelector('textarea#proof_data');
+const proofDataTextArea = document.querySelector('textarea#proof_data');
 const proofFile = document.querySelector('input#proof_file');
 const verifyProofButton = document.querySelector('button#verify_proof');
 const readableDataTable = document.querySelector('table#readable_data');
+const verificationStatusTable = document.querySelector('table#verification_status');
 function clear(el) {
     el.innerHTML = '';
+}
+async function verifyProof(proof) {
+    clear(verificationStatusTable);
+    // Verify signature
+    const proofVerified = await verifyProofSignature(proof);
+    verificationStatusTable.append(tr([
+        td('Proof signature verified:'),
+        proofVerified ? td('True') : td('False')
+    ]));
+    // Verify plaid certificate
+    const plaidVerified = await verifyPlaidCertificate(proof);
+    verificationStatusTable.append(tr([
+        td('Plaid certificate verified:'),
+        plaidVerified ? td('True') : td('False')
+    ]));
+    // Verify remote attestation report
+    const raVerified = await verifyRemoteAttestationReport(proof);
+    verificationStatusTable.append(tr([
+        td('Secure enclave verified:'),
+        raVerified ? td('True') : td('False')
+    ]));
+}
+async function displayCommonData(proof) {
+    readableDataTable.append(tr([
+        td('Account holder name:'),
+        td(proof.typeSpecificData.accountHolderName)
+    ]));
+    readableDataTable.append(tr([
+        td('Institution name:'),
+        td(proof.typeSpecificData.institutionName)
+    ]));
+    readableDataTable.append(tr([
+        td('Timestamp:'),
+        td(proof.typeSpecificData.serverTimestamp)
+    ]));
 }
 async function handleMinimumBalanceProof(proof) {
     clear(readableDataTable);
@@ -16,36 +52,8 @@ async function handleMinimumBalanceProof(proof) {
         td('Minimum balance:'),
         td(proof.typeSpecificData.attestationData.minimumBalance.toString())
     ]));
-    readableDataTable.append(tr([
-        td('Account holder name:'),
-        td(proof.typeSpecificData.accountHolderName)
-    ]));
-    readableDataTable.append(tr([
-        td('Institution name:'),
-        td(proof.typeSpecificData.institutionName)
-    ]));
-    readableDataTable.append(tr([
-        td('Timestamp:'),
-        td(proof.typeSpecificData.serverTimestamp)
-    ]));
-    // Verify signature
-    const proofVerified = await verifyMinimumBalanceProofSignature(proof);
-    readableDataTable.append(tr([
-        td('Proof signature verified:'),
-        proofVerified ? td('True') : td('False')
-    ]));
-    // Verify plaid certificate
-    const plaidVerified = await verifyPlaidCertificate(proof);
-    readableDataTable.append(tr([
-        td('Plaid certificate verified:'),
-        plaidVerified ? td('True') : td('False')
-    ]));
-    // Verify remote attestation report
-    const raVerified = await verifyRemoteAttestationReport(proof);
-    readableDataTable.append(tr([
-        td('Secure enclave verified:'),
-        raVerified ? td('True') : td('False')
-    ]));
+    displayCommonData(proof);
+    verifyProof(proof);
 }
 async function handleConsistentIncomeProof(proof) {
     clear(readableDataTable);
@@ -53,36 +61,8 @@ async function handleConsistentIncomeProof(proof) {
         td('Consistent income:'),
         td(proof.typeSpecificData.attestationData.consistentIncome.toString())
     ]));
-    readableDataTable.append(tr([
-        td('Account holder name:'),
-        td(proof.typeSpecificData.accountHolderName)
-    ]));
-    readableDataTable.append(tr([
-        td('Institution name:'),
-        td(proof.typeSpecificData.institutionName)
-    ]));
-    readableDataTable.append(tr([
-        td('Timestamp:'),
-        td(proof.typeSpecificData.serverTimestamp)
-    ]));
-    // Verify signature
-    const proofVerified = await verifyConsistentIncomeProofSignature(proof);
-    readableDataTable.append(tr([
-        td('Proof signature verified:'),
-        proofVerified ? td('True') : td('False')
-    ]));
-    // Verify plaid certificate
-    const plaidVerified = await verifyPlaidCertificate(proof);
-    readableDataTable.append(tr([
-        td('Plaid certificate verified:'),
-        plaidVerified ? td('True') : td('False')
-    ]));
-    // Verify remote attestation report
-    const raVerified = await verifyRemoteAttestationReport(proof);
-    readableDataTable.append(tr([
-        td('Secure enclave verified:'),
-        raVerified ? td('True') : td('False')
-    ]));
+    displayCommonData(proof);
+    verifyProof(proof);
 }
 async function handleAccountOwnershipProof(proof) {
     clear(readableDataTable);
@@ -98,41 +78,13 @@ async function handleAccountOwnershipProof(proof) {
         td('IBAN:'),
         td(proof.typeSpecificData.attestationData.iban)
     ]));
-    readableDataTable.append(tr([
-        td('Account holder name:'),
-        td(proof.typeSpecificData.accountHolderName)
-    ]));
-    readableDataTable.append(tr([
-        td('Institution name:'),
-        td(proof.typeSpecificData.institutionName)
-    ]));
-    readableDataTable.append(tr([
-        td('Timestamp:'),
-        td(proof.typeSpecificData.serverTimestamp)
-    ]));
-    // Verify signature
-    const proofVerified = await verifyAccountOwnershipProofSignature(proof);
-    readableDataTable.append(tr([
-        td('Proof signature verified:'),
-        proofVerified ? td('True') : td('False')
-    ]));
-    // Verify plaid certificate
-    const plaidVerified = await verifyPlaidCertificate(proof);
-    readableDataTable.append(tr([
-        td('Plaid certificate verified:'),
-        plaidVerified ? td('True') : td('False')
-    ]));
-    // Verify remote attestation report
-    const raVerified = await verifyRemoteAttestationReport(proof);
-    readableDataTable.append(tr([
-        td('Secure enclave verified:'),
-        raVerified ? td('True') : td('False')
-    ]));
+    displayCommonData(proof);
+    verifyProof(proof);
 }
 function handleProofDataUpdate() {
     let proof;
     try {
-        proof = parseProofJSON(proofDataTextarea.value);
+        proof = parseProofJSON(proofDataTextArea.value);
     }
     catch (e) {
         alert(e.name + ': ' + e.message);
@@ -156,25 +108,11 @@ async function uploadProof() {
     const file = proofFile.files[0];
     if (file) {
         const data = await new Response(file).text();
-        proofDataTextarea.value = data;
+        proofDataTextArea.value = data;
     }
-    /*
-    if (proofFile.files.length < 1) {
-      return
-    }
-    var reader = new FileReader()
-    reader.onload = (function () {
-      return function () {
-        console.log("On load")
-        proofDataTextarea.value = reader.result as string
-      }
-    })
-    reader.readAsText(proofFile.files[0])*/
 }
 async function init() {
-    //const res = await fetch('proof.json')
-    //proofDataTextarea.value = await res.text()
-    //handleProofDataUpdate()
+    uploadProof();
 }
 proofFile.addEventListener('change', uploadProof);
 verifyProofButton.addEventListener('click', handleProofDataUpdate);

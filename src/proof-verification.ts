@@ -1,4 +1,4 @@
-import { MinimumBalanceProof, ConsistentIncomeProof, AccountOwnershipProof } from './types.js'
+import { Proof, MinimumBalanceProof, ConsistentIncomeProof, AccountOwnershipProof } from './types.js'
 import { hexToArrayBuffer } from './hex.js'
 import { rsaSignatureVerificationPublicKey, rsaVerify } from './crypto.js'
 
@@ -111,30 +111,14 @@ function accountOwnershipBinaryAttestationData(proof: AccountOwnershipProof): Ar
   return data
 }
 
-export async function verifyMinimumBalanceProofSignature(proof: MinimumBalanceProof): Promise<boolean> {
+export async function verifyProofSignature(proof: Proof): Promise<boolean> {
   let attestationData
   if (proof.type === 'minimumBalance') {
-    attestationData = minimumBalanceBinaryAttestationData(proof)
-  }
-  const pubKey = await rsaSignatureVerificationPublicKey(proof.sigModulus)
-  const verificationResult = await rsaVerify(pubKey, attestationData, proof.signature)
-  return verificationResult
-}
-
-export async function verifyConsistentIncomeProofSignature(proof: ConsistentIncomeProof): Promise<boolean> {
-  let attestationData
-  if (proof.type === 'consistentIncome') {
-    attestationData = consistentIncomeBinaryAttestationData(proof)
-  }
-  const pubKey = await rsaSignatureVerificationPublicKey(proof.sigModulus)
-  const verificationResult = await rsaVerify(pubKey, attestationData, proof.signature)
-  return verificationResult
-}
-
-export async function verifyAccountOwnershipProofSignature(proof: AccountOwnershipProof): Promise<boolean> {
-  let attestationData
-  if (proof.type === 'accountOwnership') {
-    attestationData = accountOwnershipBinaryAttestationData(proof)
+    attestationData = minimumBalanceBinaryAttestationData(proof as MinimumBalanceProof)
+  } else if (proof.type === 'consistentIncome') {
+    attestationData = consistentIncomeBinaryAttestationData(proof as ConsistentIncomeProof)
+  } else if (proof.type === 'accountOwnership') {
+    attestationData = accountOwnershipBinaryAttestationData(proof as AccountOwnershipProof)
   }
   const pubKey = await rsaSignatureVerificationPublicKey(proof.sigModulus)
   const verificationResult = await rsaVerify(pubKey, attestationData, proof.signature)

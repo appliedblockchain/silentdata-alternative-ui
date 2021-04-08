@@ -74,27 +74,15 @@ function accountOwnershipBinaryAttestationData(proof) {
     uints.set(encoder.encode(proof.typeSpecificData.certificateChain), 346);
     return data;
 }
-export async function verifyMinimumBalanceProofSignature(proof) {
+export async function verifyProofSignature(proof) {
     let attestationData;
     if (proof.type === 'minimumBalance') {
         attestationData = minimumBalanceBinaryAttestationData(proof);
     }
-    const pubKey = await rsaSignatureVerificationPublicKey(proof.sigModulus);
-    const verificationResult = await rsaVerify(pubKey, attestationData, proof.signature);
-    return verificationResult;
-}
-export async function verifyConsistentIncomeProofSignature(proof) {
-    let attestationData;
-    if (proof.type === 'consistentIncome') {
+    else if (proof.type === 'consistentIncome') {
         attestationData = consistentIncomeBinaryAttestationData(proof);
     }
-    const pubKey = await rsaSignatureVerificationPublicKey(proof.sigModulus);
-    const verificationResult = await rsaVerify(pubKey, attestationData, proof.signature);
-    return verificationResult;
-}
-export async function verifyAccountOwnershipProofSignature(proof) {
-    let attestationData;
-    if (proof.type === 'accountOwnership') {
+    else if (proof.type === 'accountOwnership') {
         attestationData = accountOwnershipBinaryAttestationData(proof);
     }
     const pubKey = await rsaSignatureVerificationPublicKey(proof.sigModulus);
