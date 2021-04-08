@@ -6,15 +6,15 @@ export function parseCertChain(pem: string): X509[] {
   const lines = pem.split('\n')
 
   let certBase64 = ''
+  let read = false
   for (let i = 0; i < lines.length; i = i + 1) {
     const line = lines[i]
-    if (line === '') {
-      // ignore
-    } else if (line === '-----BEGIN CERTIFICATE-----') {
+    if (line === '-----BEGIN CERTIFICATE-----') {
       if (certBase64 !== '') {
         throw new Error('Invalid cert chain format (begin)')
       }
       certBase64 = line
+      read = true
     } else if (line === '-----END CERTIFICATE-----') {
       if (certBase64 === '') {
         throw new Error('Invalid cert chain format (end)')
@@ -24,7 +24,8 @@ export function parseCertChain(pem: string): X509[] {
       c.readCertPEM(certBase64)
       certs.push(c)
       certBase64 = ''
-    } else {
+      read = false
+    } else if (read) {
       certBase64 += line
     }
   }

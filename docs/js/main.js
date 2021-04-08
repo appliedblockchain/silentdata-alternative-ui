@@ -1,6 +1,7 @@
 import parseProofJSON from './parse-proof-json.js';
 import { td, tr } from './dom.js';
 import { verifyProofSignature } from './proof-verification.js';
+import { verifyPlaidCertificate } from './plaid-verification.js';
 import { verifyRemoteAttestationReport } from './ra-verification.js';
 const proofDataTextarea = document.querySelector('textarea#proof_data');
 const loadProofButton = document.querySelector('button#load_proof');
@@ -32,6 +33,12 @@ async function handleMinimumBalanceProof(proof) {
         td('Proof signature verified:'),
         proofVerified ? td('True') : td('False')
     ]));
+    const plaidVerified = await verifyPlaidCertificate(proof);
+    readableDataTable.append(tr([
+        td('Plaid certificate verified:'),
+        plaidVerified ? td('True') : td('False')
+    ]));
+    // Verify plaid certificate
     // Verify remote attestation report
     const raVerified = await verifyRemoteAttestationReport(proof);
     readableDataTable.append(tr([

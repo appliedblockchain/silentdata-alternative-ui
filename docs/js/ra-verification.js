@@ -1,34 +1,15 @@
-import parseCertChain from './parse-cert-chain.js';
+import { parseCertChain, commonName, validateCertificate } from './parse-cert-chain.js';
 import iasRootCACertPEM from './ias_root_ca_cert_pem.js';
 import { arrayBufferToHex, hexToArrayBuffer } from './hex.js';
 import { base64ToArrayBuffer } from './base64.js';
 import { parseQuoteBody } from './quote.js';
 import { dvsEqual, arrayBuffersEqual } from './bytes.js';
 const strict = false; // FOR TESTING
-const win = window;
 const trustedCerts = parseCertChain(iasRootCACertPEM);
-export const PRODUCTION_MRSIGNER = hexToArrayBuffer('463be517c1f292e2cf5a328d865f03e7cbcc4355e201484c39fedbd55534e849');
-export const PRODUCTION_MRENCLAVES = [
+const PRODUCTION_MRSIGNER = hexToArrayBuffer('463be517c1f292e2cf5a328d865f03e7cbcc4355e201484c39fedbd55534e849');
+const PRODUCTION_MRENCLAVES = [
     'f279a7b3f8c804339c0bd9c159e2371c2c29f7040bce1f9731c09def887e0f8b',
 ].map(hexToArrayBuffer);
-function commonName(cert) {
-    const subjectName = cert.getSubjectString();
-    const splitSubject = subjectName.split('CN=');
-    if (splitSubject.length !== 2) {
-        return '';
-    }
-    return splitSubject[1];
-}
-function validateCertificate(cert, trustedChain) {
-    let validated = false;
-    for (let i = 0; i < trustedChain.length; i = i + 1) {
-        const pubKey = trustedChain[i].getPublicKey();
-        if (cert.verifySignature(pubKey)) {
-            validated = true;
-        }
-    }
-    return validated;
-}
 // Verify IAS remote attestation verification evidence
 export async function verifyRemoteAttestationReport(proof) {
     const certs = parseCertChain(proof.iasCertChain);
@@ -65,7 +46,6 @@ export async function verifyRemoteAttestationReport(proof) {
     if (raResponse.isvEnclaveQuoteStatus !== 'OK') {
         const swHardeningNeeded = raResponse.isvEnclaveQuoteStatus === 'SW_HARDENING_NEEDED';
         const lvi = raResponse.advisoryIDs.length === 1 && raResponse.advisoryIDs[0] === 'INTEL-SA-00334';
-        console.log(raResponse.advisoryIDs);
         if (!(swHardeningNeeded && lvi)) {
             if (strict) {
                 return false;
