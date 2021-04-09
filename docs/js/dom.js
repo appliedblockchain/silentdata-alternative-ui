@@ -1,5 +1,8 @@
-export function td(content) {
+export function td(content, className) {
     const td = document.createElement('td');
+    if (className) {
+        td.className = className;
+    }
     td.innerText = content;
     return td;
 }
