@@ -4,7 +4,6 @@ import { arrayBufferToHex, hexToArrayBuffer } from './hex.js';
 import { base64ToArrayBuffer } from './base64.js';
 import { parseQuoteBody } from './quote.js';
 import { dvsEqual, arrayBuffersEqual } from './bytes.js';
-const strict = false; // FOR TESTING
 const trustedCerts = parseCertChain(iasRootCACertPEM);
 const PRODUCTION_MRSIGNER = hexToArrayBuffer('463be517c1f292e2cf5a328d865f03e7cbcc4355e201484c39fedbd55534e849');
 const PRODUCTION_MRENCLAVES = [
@@ -15,17 +14,17 @@ export async function verifyRemoteAttestationReport(proof) {
     const certs = parseCertChain(proof.iasCertChain);
     // Check common name is what we expect
     if (commonName(certs[0]) !== 'Intel SGX Attestation Report Signing') {
-        return false;
+        throw new Error(`Unexpected certificate name: ${commonName(certs[0])}`);
     }
     // Verify certificate chain with trusted certs
     if (!validateCertificate(certs[certs.length - 1], trustedCerts)) {
-        return false;
+        throw new Error('Certificate not signed by Intel root CA');
     }
     // Get public key from certificate
     const pubKey = certs[0].getPublicKey();
     // Verify signature of report
     if (!pubKey.verify(proof.iasReport, arrayBufferToHex(proof.iasSignature))) {
-        return false;
+        throw new Error('Report data does not match signature');
     }
     // Construct report data from enclave public keys
     const raResponse = JSON.parse(proof.iasReport);
@@ -40,31 +39,19 @@ export async function verifyRemoteAttestationReport(proof) {
     const expectedReportData = new DataView(expectedReportDataUints.buffer);
     expectedReportDataUints.set(new Uint8Array(hash), 0);
     if (!dvsEqual(new DataView(quoteBody.report_body.report_data), expectedReportData)) {
-        return false;
+        throw new Error('Enclave keys do not match report');
     }
     // Check the remote attestation result
     if (raResponse.isvEnclaveQuoteStatus !== 'OK') {
         const swHardeningNeeded = raResponse.isvEnclaveQuoteStatus === 'SW_HARDENING_NEEDED';
         const lvi = raResponse.advisoryIDs.length === 1 && raResponse.advisoryIDs[0] === 'INTEL-SA-00334';
         if (!(swHardeningNeeded && lvi)) {
-            if (strict) {
-                return false;
-            }
-            else {
-                console.log('RA failed: ', raResponse.isvEnclaveQuoteStatus, raResponse.advisoryIDs);
-            }
+            throw new Error('Enclave platform was not secure');
         }
     }
     // Check MRSIGNER
     if (!arrayBuffersEqual(quoteBody.report_body.mr_signer, PRODUCTION_MRSIGNER)) {
-        const hex = arrayBufferToHex(quoteBody.report_body.mr_signer);
-        const expected = arrayBufferToHex(PRODUCTION_MRSIGNER);
-        if (strict) {
-            return false;
-        }
-        else {
-            console.log(`Invalid MRSIGNER value in remote attestation report (is ${hex}, expected ${expected})`);
-        }
+        throw new Error('Invalid MRSIGNER');
     }
     // Check MRENCLAVE
     let mrEnclaveOK = false;
@@ -75,22 +62,11 @@ export async function verifyRemoteAttestationReport(proof) {
         }
     }
     if (!mrEnclaveOK) {
-        const hex = arrayBufferToHex(quoteBody.report_body.mr_enclave);
-        if (strict) {
-            return false;
-        }
-        else {
-            console.log(`Invalid MRENCLAVE value in remote attestation report: ${hex}`);
-        }
+        throw new Error('Invalid MRENCLAVE');
     }
     // Check for debug enclave
     if (quoteBody.report_body.attributes.flags.DEBUG) {
-        if (strict) {
-            return false;
-        }
-        else {
-            console.log('DEBUG enclave');
-        }
+        throw new Error('Enclave in debug mode');
     }
     return true;
 }

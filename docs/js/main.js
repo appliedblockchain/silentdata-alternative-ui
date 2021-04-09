@@ -20,7 +20,7 @@ async function verifyProof(proof) {
         proofVerified = await verifyProofSignature(proof);
     }
     catch (e) {
-        proofVerifiedError = '(' + e.message + ')';
+        proofVerifiedError = ' (' + e.message + ')';
     }
     verificationStatusTable.append(tr([
         td('Proof signature verified:', 'td_head'),
@@ -33,7 +33,7 @@ async function verifyProof(proof) {
         plaidVerified = await verifyPlaidCertificate(proof);
     }
     catch (e) {
-        plaidVerifiedError = '(' + e.message + ')';
+        plaidVerifiedError = ' (' + e.message + ')';
     }
     verificationStatusTable.append(tr([
         td('Plaid certificate verified:', 'td_head'),
@@ -46,11 +46,11 @@ async function verifyProof(proof) {
         raVerified = await verifyRemoteAttestationReport(proof);
     }
     catch (e) {
-        raVerifiedError = '(' + e.message + ')';
+        raVerifiedError = ' (' + e.message + ')';
     }
     verificationStatusTable.append(tr([
         td('Secure enclave verified:', 'td_head'),
-        raVerified ? td('True', 'td_success') : td('False', 'td_error')
+        raVerified ? td('True', 'td_success') : td('False' + raVerifiedError, 'td_error')
     ]));
 }
 async function displayCommonData(proof) {
@@ -79,7 +79,9 @@ async function handleConsistentIncomeProof(proof) {
     clear(readableDataTable);
     readableDataTable.append(tr([
         td('Consistent income:', 'td_head'),
-        td('£' + proof.typeSpecificData.attestationData.consistentIncome.toString(), 'td_body')
+        (proof.typeSpecificData.attestationType === 4)
+            ? td('£' + proof.typeSpecificData.attestationData.consistentIncome.toString() + '(Only stable sources)', 'td_body')
+            : td('£' + proof.typeSpecificData.attestationData.consistentIncome.toString(), 'td_body')
     ]));
     displayCommonData(proof);
 }

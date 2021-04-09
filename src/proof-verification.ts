@@ -122,5 +122,8 @@ export async function verifyProofSignature(proof: Proof): Promise<boolean> {
   }
   const pubKey = await rsaSignatureVerificationPublicKey(proof.sigModulus)
   const verificationResult = await rsaVerify(pubKey, attestationData, proof.signature)
-  return verificationResult
+  if (!verificationResult) {
+    throw new Error("Proof data doesn't match signature")
+  }
+  return true
 }
