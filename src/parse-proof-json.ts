@@ -2,37 +2,27 @@ import { Proof } from './types.js'
 import { hexToArrayBuffer } from './hex.js'
 
 type RawMinimumBalanceTypeSpecificData = {
-  attestationType: number,
-  processId: string,
-  serverTimestamp: string,
-  accountHolderName: string,
-  institutionName: string,
-  minimumBalance: number,
-  requestTimestamp: number,
-  certificateChain: string
+  minimumBalance: number
 }
 
 type RawConsistentIncomeTypeSpecificData = {
-  attestationType: number,
-  processId: string,
-  serverTimestamp: string,
-  accountHolderName: string,
-  institutionName: string,
-  consistentIncome: number,
-  requestTimestamp: number,
-  certificateChain: string
+  consistentIncome: number
 }
 
 type RawAccountOwnershipTypeSpecificData = {
+  supportedBankInfo: number,
+  accountNumber: number,
+  sortCode: number,
+  iban: string
+}
+
+type RawPlaidProof<T> = {
   attestationType: number,
+  attestationData: T,
   processId: string,
   serverTimestamp: string,
   accountHolderName: string,
   institutionName: string,
-  supportedBankInfo: number,
-  accountNumber: number,
-  sortCode: number,
-  iban: string,
   requestTimestamp: number,
   certificateChain: string
 }
@@ -48,9 +38,9 @@ type GenericRawProof<T> = {
   signature: string
 }
 
-type RawMinimumBalanceProof = GenericRawProof<RawMinimumBalanceTypeSpecificData>
-type RawConsistentIncomeProof = GenericRawProof<RawConsistentIncomeTypeSpecificData>
-type RawAccountOwnershipProof = GenericRawProof<RawAccountOwnershipTypeSpecificData>
+type RawMinimumBalanceProof = GenericRawProof<RawPlaidProof<RawMinimumBalanceTypeSpecificData>>
+type RawConsistentIncomeProof = GenericRawProof<RawPlaidProof<RawConsistentIncomeTypeSpecificData>>
+type RawAccountOwnershipProof = GenericRawProof<RawPlaidProof<RawAccountOwnershipTypeSpecificData>>
 
 function parseMinimumBalanceProof(rawProof: RawMinimumBalanceProof) {
   return {
@@ -58,7 +48,7 @@ function parseMinimumBalanceProof(rawProof: RawMinimumBalanceProof) {
     typeSpecificData: {
       attestationType: rawProof.typeSpecificData.attestationType,
       attestationData: {
-        minimumBalance: rawProof.typeSpecificData.minimumBalance,
+        minimumBalance: rawProof.typeSpecificData.attestationData.minimumBalance,
       },
       processId: rawProof.typeSpecificData.processId,
       serverTimestamp: rawProof.typeSpecificData.serverTimestamp,
@@ -82,7 +72,7 @@ function parseConsistentIncomeProof(rawProof: RawConsistentIncomeProof) {
     typeSpecificData: {
       attestationType: rawProof.typeSpecificData.attestationType,
       attestationData: {
-        consistentIncome: rawProof.typeSpecificData.consistentIncome,
+        consistentIncome: rawProof.typeSpecificData.attestationData.consistentIncome,
       },
       processId: rawProof.typeSpecificData.processId,
       serverTimestamp: rawProof.typeSpecificData.serverTimestamp,
@@ -106,10 +96,10 @@ function parseAccountOwnershipProof(rawProof: RawAccountOwnershipProof) {
     typeSpecificData: {
       attestationType: rawProof.typeSpecificData.attestationType,
       attestationData: {
-        supportedBankInfo: rawProof.typeSpecificData.supportedBankInfo,
-        accountNumber: rawProof.typeSpecificData.accountNumber,
-        sortCode: rawProof.typeSpecificData.sortCode,
-        iban: rawProof.typeSpecificData.iban,
+        supportedBankInfo: rawProof.typeSpecificData.attestationData.supportedBankInfo,
+        accountNumber: rawProof.typeSpecificData.attestationData.accountNumber,
+        sortCode: rawProof.typeSpecificData.attestationData.sortCode,
+        iban: rawProof.typeSpecificData.attestationData.iban,
       },
       processId: rawProof.typeSpecificData.processId,
       serverTimestamp: rawProof.typeSpecificData.serverTimestamp,

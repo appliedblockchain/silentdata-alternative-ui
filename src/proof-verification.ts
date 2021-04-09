@@ -43,7 +43,7 @@ function consistentIncomeBinaryAttestationData(proof: ConsistentIncomeProof): Ar
   const uints = new Uint8Array(data)
   const dataView = new DataView(data)
 
-  // From byte w/ index 0: Attestation type (1 = minimum balance, 2 bytes)
+  // From byte w/ index 0: Attestation type (2 = consistent income, 4 = stable income, 2 bytes)
   dataView.setUint16(0, proof.typeSpecificData.attestationType, true)
 
   // From byte w/ index 2: ID (16 bytes)
@@ -75,7 +75,7 @@ function accountOwnershipBinaryAttestationData(proof: AccountOwnershipProof): Ar
   const uints = new Uint8Array(data)
   const dataView = new DataView(data)
 
-  // From byte w/ index 0: Attestation type (1 = minimum balance, 2 bytes)
+  // From byte w/ index 0: Attestation type (3 = account ownership, 2 bytes)
   dataView.setUint16(0, proof.typeSpecificData.attestationType, true)
 
   // From byte w/ index 2: ID (16 bytes)
@@ -103,10 +103,10 @@ function accountOwnershipBinaryAttestationData(proof: AccountOwnershipProof): Ar
   uints.set(encoder.encode(proof.typeSpecificData.attestationData.iban), 348)
 
   // From byte w/ index 383: Request timestamp as a 32bit little-endian signed integer (4 bytes)
-  dataView.setInt32(342, proof.typeSpecificData.requestTimestamp, true)
+  dataView.setInt32(383, proof.typeSpecificData.requestTimestamp, true)
 
   // From byte w/ index 387: Cert chain
-  uints.set(encoder.encode(proof.typeSpecificData.certificateChain), 346)
+  uints.set(encoder.encode(proof.typeSpecificData.certificateChain), 387)
 
   return data
 }
