@@ -2,23 +2,37 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>SILENTDATA Alternative UI</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jsrsasign/10.1.13/jsrsasign-all-min.js"
+    <title>SILENTDATA Proof Verification</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsrsasign/10.1.13/jsrsasign-all-min.js"
     integrity="sha512-XHSYvv5l8XnI24FslIp1utsudd1Ux2AGpGHLnxP2RQDnh63774//j1BC6Atjvezd0ZOA7filnDTonabBtNSW+Q=="
     crossorigin="anonymous"></script>
     <script type="module" src="js/main.js"></script>
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
-    <h1>SILENTDATA Alternative UI</h1>
+    <h1>SILENTDATA Proof Verification</h1>
     <div>
-      <h2>Proof data</h2>
+      <br />
+      <label for="proof_file" class="sd_button">Upload proof</label>
+      <input id="proof_file" type="file" />
+      </div>
+      <div class="extracted_info">
+        <h2>Extracted proof details:</h2>
+        <table id="readable_data" class="details_table">
+          <tbody />
+        </table>
+      </div>
+      <div class="verification">
+        <br />
+        <button id="verify_proof" class="sd_button">Verify</button>
+        <table id="verification_status" class="verification_table">
+          <tbody />
+        </table>
+      </div>
+      <div class="raw_data">
+        <h2>Raw proof data:</h2>
       <textarea id="proof_data" /></textarea>
       <br />
-      <input id="proof_file" type="file" />
-      <button id="verify_proof">Verify</button>
-      <table id="readable_data" />
-      <table id="verification_status" />
     </div>
   </body>
 </html>

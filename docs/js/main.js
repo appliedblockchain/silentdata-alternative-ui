@@ -14,72 +14,96 @@ function clear(el) {
 async function verifyProof(proof) {
     clear(verificationStatusTable);
     // Verify signature
-    const proofVerified = await verifyProofSignature(proof);
+    let proofVerified = false;
+    let proofVerifiedError;
+    try {
+        proofVerified = await verifyProofSignature(proof);
+    }
+    catch (e) {
+        proofVerifiedError = '(' + e.message + ')';
+    }
     verificationStatusTable.append(tr([
-        td('Proof signature verified:'),
-        proofVerified ? td('True') : td('False')
+        td('Proof signature verified:', 'td_head'),
+        proofVerified ? td('True', 'td_success') : td('False' + proofVerifiedError, 'td_error')
     ]));
     // Verify plaid certificate
-    const plaidVerified = await verifyPlaidCertificate(proof);
+    let plaidVerified = false;
+    let plaidVerifiedError;
+    try {
+        plaidVerified = await verifyPlaidCertificate(proof);
+    }
+    catch (e) {
+        plaidVerifiedError = '(' + e.message + ')';
+    }
     verificationStatusTable.append(tr([
-        td('Plaid certificate verified:'),
-        plaidVerified ? td('True') : td('False')
+        td('Plaid certificate verified:', 'td_head'),
+        plaidVerified ? td('True', 'td_success') : td('False' + plaidVerifiedError, 'td_error')
     ]));
     // Verify remote attestation report
-    const raVerified = await verifyRemoteAttestationReport(proof);
+    let raVerified = false;
+    let raVerifiedError;
+    try {
+        raVerified = await verifyRemoteAttestationReport(proof);
+    }
+    catch (e) {
+        raVerifiedError = '(' + e.message + ')';
+    }
     verificationStatusTable.append(tr([
-        td('Secure enclave verified:'),
-        raVerified ? td('True') : td('False')
+        td('Secure enclave verified:', 'td_head'),
+        raVerified ? td('True', 'td_success') : td('False', 'td_error')
     ]));
 }
 async function displayCommonData(proof) {
     readableDataTable.append(tr([
-        td('Account holder name:'),
-        td(proof.typeSpecificData.accountHolderName)
+        td('Account holder name:', 'td_head'),
+        td(proof.typeSpecificData.accountHolderName, 'td_body')
     ]));
     readableDataTable.append(tr([
-        td('Institution name:'),
-        td(proof.typeSpecificData.institutionName)
+        td('Institution name:', 'td_head'),
+        td(proof.typeSpecificData.institutionName, 'td_body')
     ]));
     readableDataTable.append(tr([
-        td('Timestamp:'),
-        td(proof.typeSpecificData.serverTimestamp)
+        td('Timestamp:', 'td_head'),
+        td(proof.typeSpecificData.serverTimestamp, 'td_body')
     ]));
 }
 async function handleMinimumBalanceProof(proof) {
     clear(readableDataTable);
     readableDataTable.append(tr([
-        td('Minimum balance:'),
-        td(proof.typeSpecificData.attestationData.minimumBalance.toString())
+        td('Minimum balance:', 'td_head'),
+        td('£' + proof.typeSpecificData.attestationData.minimumBalance.toString(), 'td_body')
     ]));
     displayCommonData(proof);
-    verifyProof(proof);
 }
 async function handleConsistentIncomeProof(proof) {
     clear(readableDataTable);
     readableDataTable.append(tr([
-        td('Consistent income:'),
-        td(proof.typeSpecificData.attestationData.consistentIncome.toString())
+        td('Consistent income:', 'td_head'),
+        td('£' + proof.typeSpecificData.attestationData.consistentIncome.toString(), 'td_body')
     ]));
     displayCommonData(proof);
-    verifyProof(proof);
 }
 async function handleAccountOwnershipProof(proof) {
     clear(readableDataTable);
     readableDataTable.append(tr([
-        td('Account number:'),
-        td(proof.typeSpecificData.attestationData.accountNumber.toString())
+        td('Account number:', 'td_head'),
+        (proof.typeSpecificData.attestationData.supportedBankInfo === 2)
+            ? td(proof.typeSpecificData.attestationData.accountNumber.toString() + '(Not supported by bank)', 'td_disabled')
+            : td(proof.typeSpecificData.attestationData.accountNumber.toString(), 'td_body')
     ]));
     readableDataTable.append(tr([
-        td('Sort code:'),
-        td(proof.typeSpecificData.attestationData.sortCode.toString())
+        td('Sort code:', 'td_head'),
+        (proof.typeSpecificData.attestationData.supportedBankInfo === 2)
+            ? td(proof.typeSpecificData.attestationData.sortCode.toString() + '(Not supported by bank)', 'td_disabled')
+            : td(proof.typeSpecificData.attestationData.sortCode.toString(), 'td_body')
     ]));
     readableDataTable.append(tr([
-        td('IBAN:'),
-        td(proof.typeSpecificData.attestationData.iban)
+        td('IBAN:', 'td_head'),
+        (proof.typeSpecificData.attestationData.supportedBankInfo === 3)
+            ? td(proof.typeSpecificData.attestationData.iban + '(Not supported by bank)', 'td_disabled')
+            : td(proof.typeSpecificData.attestationData.iban, 'td_body')
     ]));
     displayCommonData(proof);
-    verifyProof(proof);
 }
 function handleProofDataUpdate() {
     let proof;
@@ -103,17 +127,29 @@ function handleProofDataUpdate() {
         alert('Invalid or unsupported proof type');
     }
 }
+function handleVerifyProofDataUpdate() {
+    let proof;
+    try {
+        proof = parseProofJSON(proofDataTextArea.value);
+    }
+    catch (e) {
+        alert(e.name + ': ' + e.message);
+        return;
+    }
+    verifyProof(proof);
+}
 async function uploadProof() {
     console.log("Uploading proof");
     const file = proofFile.files[0];
     if (file) {
         const data = await new Response(file).text();
         proofDataTextArea.value = data;
+        handleProofDataUpdate();
     }
 }
 async function init() {
     uploadProof();
 }
 proofFile.addEventListener('change', uploadProof);
-verifyProofButton.addEventListener('click', handleProofDataUpdate);
+verifyProofButton.addEventListener('click', handleVerifyProofDataUpdate);
 init();

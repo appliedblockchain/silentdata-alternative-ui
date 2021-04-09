@@ -1,5 +1,8 @@
-export function td(content: string): HTMLTableCellElement {
+export function td(content: string, className?: string): HTMLTableCellElement {
   const td = document.createElement('td')
+  if (className) {
+    td.className = className
+  }
   td.innerText = content
   return td
 }

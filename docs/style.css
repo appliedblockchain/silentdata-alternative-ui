@@ -1,34 +1,123 @@
 * {
-    font-family: 'sans-serif';
+    font-family: 'Lato', 'Roboto', 'Helvetica', 'sans-serif';
     font-size: 16px;
     line-height: 20px;
 }
 
+body {
+    width: 75%;
+    margin: auto;
+    margin-bottom: 30px;
+}
+
+h1 {
+    font-weight: 700;
+    font-size: 2em;
+    line-height: 30px;
+    text-align: center;
+    color: #253858;
+}
+
+label {
+    cursor: pointer;
+}
+
+.sd_button {
+    background-color: #2E81F4;
+    color: white;
+    border: none;
+    padding: 8px;
+    border-radius: 8px;
+    font-weight: bold;
+    font-size: 1.3em;
+    margin: auto;
+    display: block;
+    width: 10em;
+    text-align: center;
+}
+.sd_button:hover {
+    background-color: #1270F3;
+}
+.sd_button:active {
+    background-color: #2E81F4;
+}
+
+input#proof_file {
+    opacity: 0;
+    position: absolute;
+    margin: auto;
+    display: block;
+    z-index: -1;
+}
+
+h2 {
+    font-weight: 700;
+    font-size: 1.5em;
+    line-height: 0px;
+    padding-top: 20px;
+    color: #253858;
+}
+
 textarea {
-    font-family: 'monospace';
+    font-family: 'source-code-pro', 'Menlo', 'Monaco', 'Consolas', 'Courier New', 'monospace';
+    resize: none;
+}
+
+textarea#proof_data {
+    width: 100%;
+    height: 400px;
+    margin-bottom: 20px;
+    padding: 10px;
+    border-radius: 4px;
+    border: 3px solid #8693A8;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
 }
 
 table {
     border-collapse: collapse;
 }
 
+.details_table {
+    width: 75%;
+}
+
+.verification_table {
+    margin: auto;
+}
+
 td {
-    border: 1px solid #cccccc;
+    border-bottom: 2px solid #8693A8;
+    padding-top: 20px;
+    padding-bottom: 2px;
 }
 
-textarea#proof_data {
-    width: 800px;
-    height: 400px;
-    margin-bottom: 20px;
-}
-
-button {
-    background-color: #cccccc;
-    border: none;
-    padding: 8px;
+.td_head {
     font-weight: bold;
+    color: #8693A8;
 }
 
-button#load_proof {
-    margin-bottom: 20px;
+.td_body {
+    font-weight: bold;
+    color: #253858;
+}
+
+.td_disabled {
+    font-weight: bold;
+    color: #C9CFDE;
+}
+
+.td_success {
+    font-weight: bold;
+    color: #52E472;
+    padding-left: 5px;
+}
+
+.td_error {
+    font-weight: bold;
+    color: #FF3A62;
+    padding-left: 5px;
+}
+
+.verification {
+    margin-top: 20px;
 }
