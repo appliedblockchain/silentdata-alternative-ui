@@ -80,7 +80,7 @@ async function handleConsistentIncomeProof(proof) {
     readableDataTable.append(tr([
         td('Consistent income:', 'td_head'),
         (proof.typeSpecificData.attestationType === 4)
-            ? td('£' + proof.typeSpecificData.attestationData.consistentIncome.toString() + '(Only stable sources)', 'td_body')
+            ? td('£' + proof.typeSpecificData.attestationData.consistentIncome.toString() + ' (Only stable sources)', 'td_body')
             : td('£' + proof.typeSpecificData.attestationData.consistentIncome.toString(), 'td_body')
     ]));
     displayCommonData(proof);
