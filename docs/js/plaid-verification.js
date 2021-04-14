@@ -1,7 +1,7 @@
 import { parseCertChain, commonName, validateCertificate } from './parse-cert-chain.js';
 // Verify the Plaid certificate returned by the enclave
 export async function verifyPlaidCertificate(proof) {
-    const res = await fetch('./cacert.pem');
+    const res = await fetch('cacert.pem');
     const rootCACertPEM = await res.text();
     const trustedCerts = parseCertChain(rootCACertPEM);
     const certs = parseCertChain(proof.typeSpecificData.certificateChain);
