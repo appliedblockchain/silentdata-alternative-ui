@@ -1,8 +1,10 @@
 type MinimumBalanceTypeSpecificData = {
+  currencyCode: undefined | string,
   minimumBalance: number
 }
 
 type ConsistentIncomeTypeSpecificData = {
+  currencyCode: undefined | string,
   consistentIncome: number
 }
 
@@ -14,8 +16,8 @@ type AccountOwnershipTypeSpecificData = {
 }
 
 type PlaidProof<T> = {
-  attestationType: number,
-  attestationData: T,
+  proofType: number,
+  proofData: T,
   processId: string,
   serverTimestamp: string,
   accountHolderName: string,
@@ -25,6 +27,7 @@ type PlaidProof<T> = {
 }
 
 type GenericProof<T> = {
+  version: undefined | string,
   type: string,
   typeSpecificData: T,
   iasReport: string,
