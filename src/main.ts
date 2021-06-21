@@ -15,6 +15,14 @@ function clear(el: HTMLElement) {
   el.innerHTML = ''
 }
 
+function currencySymbol(code: string) {
+  if (code === 'USD') {
+    return '$'
+  } else {
+    return '£'
+  }
+}
+
 async function verifyProof(proof: Proof) {
   clear(verificationStatusTable)
 
@@ -77,7 +85,8 @@ async function handleMinimumBalanceProof(proof: MinimumBalanceProof) {
   clear(readableDataTable)
   readableDataTable.append(tr([
     td('Minimum balance:', 'td_head'),
-    td('£' + proof.typeSpecificData.proofData.minimumBalance.toString(), 'td_body')
+    td(currencySymbol(proof.typeSpecificData.proofData.currencyCode)
+      + proof.typeSpecificData.proofData.minimumBalance.toString(), 'td_body')
   ]))
   displayCommonData(proof)
 }
@@ -87,8 +96,8 @@ async function handleConsistentIncomeProof(proof: ConsistentIncomeProof) {
   readableDataTable.append(tr([
     td('Consistent income:', 'td_head'),
     (proof.typeSpecificData.proofType === 4)
-      ? td('£' + proof.typeSpecificData.proofData.consistentIncome.toString() + ' (Only stable sources)', 'td_body')
-      : td('£' + proof.typeSpecificData.proofData.consistentIncome.toString(), 'td_body')
+      ? td(currencySymbol(proof.typeSpecificData.proofData.currencyCode) + proof.typeSpecificData.proofData.consistentIncome.toString() + ' (Only stable sources)', 'td_body')
+      : td(currencySymbol(proof.typeSpecificData.proofData.currencyCode) + proof.typeSpecificData.proofData.consistentIncome.toString(), 'td_body')
   ]))
   displayCommonData(proof)
 }
