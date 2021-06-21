@@ -14,6 +14,8 @@ const PRODUCTION_MRSIGNER: ArrayBuffer = hexToArrayBuffer(
 
 const PRODUCTION_MRENCLAVES: ArrayBuffer[] = [
     'f279a7b3f8c804339c0bd9c159e2371c2c29f7040bce1f9731c09def887e0f8b',
+    '0d28ec3b1054ce02526c84c50fd119243188a0a871f309d45212a44ba51eeb43',
+    '3a96a65b0c58c092b9e63ab4005d841c441be7fe48c712d492f8fb2fa7eb9d85',
 ].map(hexToArrayBuffer)
 
 // Verify IAS remote attestation verification evidence

@@ -2,10 +2,12 @@ import { Proof } from './types.js'
 import { hexToArrayBuffer } from './hex.js'
 
 type RawMinimumBalanceTypeSpecificData = {
+  currencyCode: undefined | string,
   minimumBalance: number
 }
 
 type RawConsistentIncomeTypeSpecificData = {
+  currencyCode: undefined | string,
   consistentIncome: number
 }
 
@@ -17,8 +19,10 @@ type RawAccountOwnershipTypeSpecificData = {
 }
 
 type RawPlaidProof<T> = {
-  attestationType: number,
-  attestationData: T,
+  attestationType: undefined | number,
+  attestationData: undefined | T,
+  proofType: undefined | number,
+  proofData: undefined | T,
   processId: string,
   serverTimestamp: string,
   accountHolderName: string,
@@ -28,6 +32,7 @@ type RawPlaidProof<T> = {
 }
 
 type GenericRawProof<T> = {
+  version: undefined | string,
   type: string,
   typeSpecificData: T,
   iasReport: string,
@@ -43,12 +48,15 @@ type RawConsistentIncomeProof = GenericRawProof<RawPlaidProof<RawConsistentIncom
 type RawAccountOwnershipProof = GenericRawProof<RawPlaidProof<RawAccountOwnershipTypeSpecificData>>
 
 function parseMinimumBalanceProof(rawProof: RawMinimumBalanceProof) {
+  const data = rawProof.typeSpecificData.proofData ? rawProof.typeSpecificData.proofData : rawProof.typeSpecificData.attestationData
   return {
+    version: rawProof.version,
     type: "minimumBalance",
     typeSpecificData: {
-      attestationType: rawProof.typeSpecificData.attestationType,
-      attestationData: {
-        minimumBalance: rawProof.typeSpecificData.attestationData.minimumBalance,
+      proofType: rawProof.typeSpecificData.attestationType || rawProof.typeSpecificData.proofType,
+      proofData: {
+        currencyCode: data.currencyCode,
+        minimumBalance: data.minimumBalance,
       },
       processId: rawProof.typeSpecificData.processId,
       serverTimestamp: rawProof.typeSpecificData.serverTimestamp,
@@ -67,12 +75,15 @@ function parseMinimumBalanceProof(rawProof: RawMinimumBalanceProof) {
 }
 
 function parseConsistentIncomeProof(rawProof: RawConsistentIncomeProof) {
+  const data = rawProof.typeSpecificData.proofData ? rawProof.typeSpecificData.proofData : rawProof.typeSpecificData.attestationData
   return {
+    version: rawProof.version,
     type: "consistentIncome",
     typeSpecificData: {
-      attestationType: rawProof.typeSpecificData.attestationType,
-      attestationData: {
-        consistentIncome: rawProof.typeSpecificData.attestationData.consistentIncome,
+      proofType: rawProof.typeSpecificData.attestationType || rawProof.typeSpecificData.proofType,
+      proofData: {
+        currencyCode: data.currencyCode,
+        consistentIncome: data.consistentIncome,
       },
       processId: rawProof.typeSpecificData.processId,
       serverTimestamp: rawProof.typeSpecificData.serverTimestamp,
@@ -91,15 +102,17 @@ function parseConsistentIncomeProof(rawProof: RawConsistentIncomeProof) {
 }
 
 function parseAccountOwnershipProof(rawProof: RawAccountOwnershipProof) {
+  const data = rawProof.typeSpecificData.proofData ? rawProof.typeSpecificData.proofData : rawProof.typeSpecificData.attestationData
   return {
+    version: rawProof.version,
     type: "accountOwnership",
     typeSpecificData: {
-      attestationType: rawProof.typeSpecificData.attestationType,
-      attestationData: {
-        supportedBankInfo: rawProof.typeSpecificData.attestationData.supportedBankInfo,
-        accountNumber: rawProof.typeSpecificData.attestationData.accountNumber,
-        sortCode: rawProof.typeSpecificData.attestationData.sortCode,
-        iban: rawProof.typeSpecificData.attestationData.iban,
+      proofType: rawProof.typeSpecificData.attestationType || rawProof.typeSpecificData.proofType,
+      proofData: {
+        supportedBankInfo: data.supportedBankInfo,
+        accountNumber: data.accountNumber,
+        sortCode: data.sortCode,
+        iban: data.iban,
       },
       processId: rawProof.typeSpecificData.processId,
       serverTimestamp: rawProof.typeSpecificData.serverTimestamp,

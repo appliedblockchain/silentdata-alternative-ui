@@ -15,6 +15,14 @@ function clear(el: HTMLElement) {
   el.innerHTML = ''
 }
 
+function currencySymbol(code: string) {
+  if (code === 'USD') {
+    return '$'
+  } else {
+    return '£'
+  }
+}
+
 async function verifyProof(proof: Proof) {
   clear(verificationStatusTable)
 
@@ -77,7 +85,8 @@ async function handleMinimumBalanceProof(proof: MinimumBalanceProof) {
   clear(readableDataTable)
   readableDataTable.append(tr([
     td('Minimum balance:', 'td_head'),
-    td('£' + proof.typeSpecificData.attestationData.minimumBalance.toString(), 'td_body')
+    td(currencySymbol(proof.typeSpecificData.proofData.currencyCode)
+      + proof.typeSpecificData.proofData.minimumBalance.toString(), 'td_body')
   ]))
   displayCommonData(proof)
 }
@@ -86,9 +95,9 @@ async function handleConsistentIncomeProof(proof: ConsistentIncomeProof) {
   clear(readableDataTable)
   readableDataTable.append(tr([
     td('Consistent income:', 'td_head'),
-    (proof.typeSpecificData.attestationType === 4)
-      ? td('£' + proof.typeSpecificData.attestationData.consistentIncome.toString() + ' (Only stable sources)', 'td_body')
-      : td('£' + proof.typeSpecificData.attestationData.consistentIncome.toString(), 'td_body')
+    (proof.typeSpecificData.proofType === 4)
+      ? td(currencySymbol(proof.typeSpecificData.proofData.currencyCode) + proof.typeSpecificData.proofData.consistentIncome.toString() + ' (Only stable sources)', 'td_body')
+      : td(currencySymbol(proof.typeSpecificData.proofData.currencyCode) + proof.typeSpecificData.proofData.consistentIncome.toString(), 'td_body')
   ]))
   displayCommonData(proof)
 }
@@ -97,21 +106,21 @@ async function handleAccountOwnershipProof(proof: AccountOwnershipProof) {
   clear(readableDataTable)
   readableDataTable.append(tr([
     td('Account number:', 'td_head'),
-    (proof.typeSpecificData.attestationData.supportedBankInfo === 2)
-      ? td(proof.typeSpecificData.attestationData.accountNumber.toString() + '(Not supported by bank)', 'td_disabled')
-      : td(proof.typeSpecificData.attestationData.accountNumber.toString(), 'td_body')
+    (proof.typeSpecificData.proofData.supportedBankInfo === 2)
+      ? td(proof.typeSpecificData.proofData.accountNumber.toString() + '(Not supported by bank)', 'td_disabled')
+      : td(proof.typeSpecificData.proofData.accountNumber.toString(), 'td_body')
   ]))
   readableDataTable.append(tr([
     td('Sort code:', 'td_head'),
-    (proof.typeSpecificData.attestationData.supportedBankInfo === 2)
-      ? td(proof.typeSpecificData.attestationData.sortCode.toString() + '(Not supported by bank)', 'td_disabled')
-      : td(proof.typeSpecificData.attestationData.sortCode.toString(), 'td_body')
+    (proof.typeSpecificData.proofData.supportedBankInfo === 2)
+      ? td(proof.typeSpecificData.proofData.sortCode.toString() + '(Not supported by bank)', 'td_disabled')
+      : td(proof.typeSpecificData.proofData.sortCode.toString(), 'td_body')
   ]))
   readableDataTable.append(tr([
     td('IBAN:', 'td_head'),
-    (proof.typeSpecificData.attestationData.supportedBankInfo === 3)
-      ? td(proof.typeSpecificData.attestationData.iban + '(Not supported by bank)', 'td_disabled')
-      : td(proof.typeSpecificData.attestationData.iban, 'td_body')
+    (proof.typeSpecificData.proofData.supportedBankInfo === 3)
+      ? td(proof.typeSpecificData.proofData.iban + '(Not supported by bank)', 'td_disabled')
+      : td(proof.typeSpecificData.proofData.iban, 'td_body')
   ]))
   displayCommonData(proof)
 }
